@@ -1,0 +1,176 @@
+package DAO;
+
+import java.awt.Window.Type;
+import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
+import javax.persistence.TypedQuery;
+
+import com.Utils.JpaUtils;
+
+import entity.Favorite;
+import entity.Video;
+
+public class VideoDAO {
+
+	public static void main(String[] args) {
+
+	}
+
+	public void create(Video video) {
+		EntityManager em = JpaUtils.getEntityManager();
+		EntityTransaction trans = em.getTransaction();
+		try {
+			trans.begin();
+//			Video.setId("Kiet");
+//			Video.setFullname("Lê Anh Kiệt");
+//			Video.setEmail("kiet@gmail.com");
+//			Video.setPassword("123456");
+//			Video.setAdmin(true);
+			em.persist(video);
+			trans.commit();
+			System.out.println("Thêm mới thành công!");
+		} catch (Exception e) {
+			e.printStackTrace();
+			trans.rollback();
+			System.out.println("Error:" + e.toString());
+			throw e;
+		} finally {
+			em.close();
+		}
+	}
+
+	public void update(Video video) {
+		EntityManager em = JpaUtils.getEntityManager();
+		EntityTransaction trans = em.getTransaction();
+		try {
+			trans.begin();
+//			Video = em.find(Video.class, "Kiet");
+//			Video.setPassword("kiet123");
+
+			em.merge(video);
+			trans.commit();
+			System.out.println("Cập nhật thành công!");
+		} catch (Exception e) {
+			e.printStackTrace();
+			trans.rollback();
+			throw e;
+		} finally {
+			em.close();
+		}
+	}
+
+	public void deleteAll() {
+		EntityManager em = JpaUtils.getEntityManager();
+		EntityTransaction trans = em.getTransaction();
+		String jqpl = "Delete from demo";
+		try {
+			trans.begin();
+			em.createQuery(jqpl).executeUpdate();
+			trans.commit();
+		} catch (Exception e) {
+			e.printStackTrace();
+			trans.rollback();
+		}
+
+	}
+
+	public void delete(String id) throws Exception {
+		EntityManager em = JpaUtils.getEntityManager();
+		EntityTransaction trans = em.getTransaction();
+		try {
+			trans.begin();
+			Video Video = em.find(Video.class, id);
+			if (Video != null) {
+				em.remove(Video);
+			} else {
+				throw new Exception("This Video does not exist");
+			}
+			trans.commit();
+		} catch (Exception e) {
+			e.printStackTrace();
+			trans.rollback();
+			throw e;
+		} finally {
+			em.close();
+		}
+	}
+
+	public List<Video> findAll() {
+		EntityManager em = JpaUtils.getEntityManager();
+		String sql = "SELECT u FROM Video u";
+		TypedQuery<Video> query = em.createQuery(sql, Video.class);
+		return query.getResultList();
+	}
+
+	public List<Video> favorite() {
+
+		EntityManager em = JpaUtils.getEntityManager();
+		String jpql = "select o from Video o where o.favorites IS EMPTY";
+
+		TypedQuery<Video> query = em.createQuery(jpql, Video.class);
+		return query.getResultList();
+	}
+
+	public List<Video> findByRole(boolean role) {
+		EntityManager em = JpaUtils.getEntityManager();
+		String jqpl = "Select o from Video o where o.admin = :role";
+		TypedQuery<Video> query = em.createQuery(jqpl, Video.class);
+		query.setParameter("role", role);
+		return query.getResultList();
+	}
+
+	public List<Video> findByKeyWord(String keyword) {
+		EntityManager em = JpaUtils.getEntityManager();
+		String jpql = "SELECT DISTINCT o.video FROM Favorite o " + " WHERE o.video.title LIKE :keyword";
+		TypedQuery<Video> query = em.createQuery(jpql, Video.class);
+		query.setParameter("keyword", "%" + keyword + "%");
+		List<Video> list = query.getResultList();
+		return list;
+	}
+
+	public Video findOne(String id, String password) {
+		EntityManager em = JpaUtils.getEntityManager();
+		String jqpl = "Select o from Video o where o.id = :id and o.password =:password";
+		TypedQuery<Video> query = em.createQuery(jqpl, Video.class);
+		query.setParameter("id", id);
+		query.setParameter("password", password);
+		return query.getSingleResult();
+	}
+
+//	public Video findByID(String id){
+//		EntityManager em = JpaUtils.getEntityManager();
+//		String jqpl = "Select o from Video o where o.id = :id";
+//		TypedQuery<Video> query = em.createQuery(jqpl,Video.class);
+//		query.setParameter("id", id);		
+//		return query.getSingleResult();
+//	}
+	public Video findByID(String id) {
+		EntityManager em = JpaUtils.getEntityManager();
+		Video Video = em.find(Video.class, id);
+		return Video;
+	}
+
+	public List<Video> findVideoLikeVideo(String videoId) {
+		EntityManager em = JpaUtils.getEntityManager();
+		String jqpl = "Select o from Favorites o where o.video.id = :id";
+		TypedQuery<Video> query = em.createQuery(jqpl, Video.class);
+		query.setParameter("vid", videoId);
+		List<Video> list = query.getResultList();
+		return list;
+
+	}
+
+	public List<Video> findPage(int page, int size) {
+		EntityManager em = JpaUtils.getEntityManager();
+		String jqpl = "SELECT o FROM Video o";
+		TypedQuery<Video> query = em.createQuery(jqpl, Video.class);
+		query.setFirstResult(page * size);
+		query.setMaxResults(size);
+		return query.getResultList();
+	}
+
+}

@@ -1,0 +1,211 @@
+package DAO;
+
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
+import javax.persistence.TypedQuery;
+
+import com.Utils.JpaUtils;
+import entity.User;
+
+public class UserDAO {
+	public void create(User user) {
+		EntityManager em = com.Utils.JpaUtils.getEntityManager();
+		EntityTransaction trans = em.getTransaction();
+		try {
+			trans.begin();
+			em.persist(user);
+			trans.commit();
+			System.out.println("Thêm mới thành công!");
+		} catch (Exception e) {
+			e.printStackTrace();
+			trans.rollback();
+			System.out.println("Error:" + e.toString());
+			throw e;
+		} finally {
+			em.close();
+		}
+	}
+
+	public void update(User user) {
+		EntityManager em = JpaUtils.getEntityManager();
+		EntityTransaction trans = em.getTransaction();
+		try {
+			trans.begin();
+//			user = em.find(User.class, "Kiet");
+//			user.setPassword("kiet123");
+			em.merge(user);
+			trans.commit();
+			System.out.println("Cập nhật thành công!");
+		} catch (Exception e) {
+			e.printStackTrace();
+			trans.rollback();
+			throw e;
+		} finally {
+			em.close();
+		}
+	}
+
+	public void deleteAll() {
+		EntityManager em = JpaUtils.getEntityManager();
+		EntityTransaction trans = em.getTransaction();
+		String jqpl = "Delete from demo";
+		try {
+			trans.begin();
+			em.createQuery(jqpl).executeUpdate();
+			trans.commit();
+		} catch (Exception e) {
+			e.printStackTrace();
+			trans.rollback();
+		}
+
+	}
+
+	public void delete(String id) throws Exception {
+		EntityManager em = JpaUtils.getEntityManager();
+		EntityTransaction trans = em.getTransaction();
+		try {
+			trans.begin();
+			User user = em.find(User.class, id);
+			if (user != null) {
+				em.remove(user);
+
+			} else {
+				throw new Exception("This user does not exist");
+			}
+			trans.commit();
+		} catch (Exception e) {
+			e.printStackTrace();
+			trans.rollback();
+			throw e;
+		} finally {
+			em.close();
+		}
+	}
+
+	public List<User> findAll() {
+		EntityManager em = JpaUtils.getEntityManager();
+		String sql = "SELECT u FROM User u";
+		TypedQuery<User> query = em.createQuery(sql, User.class);
+		return query.getResultList();
+	}
+
+	public List<User> findByRole(boolean role) {
+		EntityManager em = JpaUtils.getEntityManager();
+		String jqpl = "Select o from User o where o.admin = :role";
+		TypedQuery<User> query = em.createQuery(jqpl, User.class);
+		query.setParameter("role", role);
+		return query.getResultList();
+	}
+
+	public List<User> findByKeyWord(String keyword) {
+		EntityManager em = JpaUtils.getEntityManager();
+		String jqpl = "Select o from User o where o.fullname like :keyword";
+		TypedQuery<User> query = em.createQuery(jqpl, User.class);
+		query.setParameter("keyword", "%" + keyword + "%");
+		return query.getResultList();
+	}
+
+	public User login(String id, String password) {
+		EntityManager em = JpaUtils.getEntityManager();
+		String jqpl = "Select o from User o where o.id = :id and o.password =:password";
+		TypedQuery<User> query = em.createQuery(jqpl, User.class);
+		query.setParameter("id", id);
+		query.setParameter("password", password);
+		return query.getSingleResult();
+	}
+
+	public User findByID(String id) {
+		EntityManager em = JpaUtils.getEntityManager();
+		String jqpl = "Select o from User o where o.id = :id";
+		TypedQuery<User> query = em.createQuery(jqpl, User.class);
+		query.setParameter("id", id);
+		return query.getSingleResult();
+	}
+
+	public User updateE(String id, String pass) {
+		EntityManager em = JpaUtils.getEntityManager();
+		String jqpl = "update User o set o.password =:password  where o.id = :id";
+		TypedQuery<User> query = em.createQuery(jqpl, User.class);
+		query.setParameter("id", id);
+		query.setParameter("password", pass);
+		return query.getSingleResult();
+	}
+
+	public List<User> findPage(int page, int size) {
+		EntityManager em = JpaUtils.getEntityManager();
+		String jqpl = "SELECT o FROM User o";
+		TypedQuery<User> query = em.createQuery(jqpl, User.class);
+		query.setFirstResult(page * size);
+		query.setMaxResults(size);
+		return query.getResultList();
+	}
+
+	public void changePassword(String username, String oldPassword, String newPassword) throws Exception {
+		EntityManager em = JpaUtils.getEntityManager();
+		EntityTransaction trans = em.getTransaction();
+
+		String jpql = "select u from User u where u.id =:username and u.password=:password";
+		try {
+			trans.begin();
+			TypedQuery<User> query = em.createQuery(jpql, User.class);
+			query.setParameter("username", username);
+			query.setParameter("password", oldPassword);
+			User user = new User();
+			user = query.getSingleResult();
+			if (user == null) {
+				throw new Exception("Current password or username are incorrect!");
+			}
+			user.setPassword(newPassword);
+			em.merge(user);
+			trans.commit();
+		} catch (Exception e) {
+			trans.rollback();
+			throw e;
+		} finally {
+			em.close();
+		}
+	}
+
+	public User findByUserEmail(String username, String email) {
+		EntityManager em = JpaUtils.getEntityManager();
+		String jpql = "select u from User u where u.id = :username and u.email = :email";
+		try {
+			TypedQuery<User> query = em.createQuery(jpql, User.class);
+			query.setParameter("username", username);
+			query.setParameter("email", email);
+
+			return query.getSingleResult();
+		} finally {
+			em.close();
+		}
+	}
+
+	public User Loginnnnn(String id, String password) {
+		EntityManager em = JpaUtils.getEntityManager();
+		String jqpl = "Select o from User o where o.id = :id and o.password =:password";
+		TypedQuery<User> query = em.createQuery(jqpl, User.class);
+		query.setParameter("id", id);
+		query.setParameter("password", password);
+		return null;
+
+	}
+
+	public boolean checkLoginTrue(String id, String password) {
+		EntityManager em = JpaUtils.getEntityManager();
+		String jqpl = "select u from User u where u.id = :id and u.password = :password";
+		TypedQuery<User> query = em.createQuery(jqpl, User.class);
+		query.setParameter("id", id);
+		query.setParameter("password", password);
+		try {
+			User u = query.getSingleResult();
+			if (u.getId().equals(id) && u.getPassword().equals(password)) {
+				return true;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+}

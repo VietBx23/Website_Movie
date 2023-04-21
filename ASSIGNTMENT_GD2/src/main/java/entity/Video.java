@@ -1,0 +1,125 @@
+package entity;
+
+import java.io.Serializable;
+import java.util.List;
+
+import javax.persistence.*;
+
+import entity.Video;
+
+@NamedNativeQueries({
+		@NamedNativeQuery(name = "Report.random10", query = "select top 10 * from Videos order by newid()", resultClass = Video.class) })
+@NamedNativeQuery(name = "printVideoFavotite", query = "select DISTINCT o.id, o.title, o.poster, o.description, o.active, o.views, o.link from videos o inner join favorites f on o.id = f.videoId; ", resultClass = Video.class)
+
+@NamedQueries({
+		@NamedQuery(name = "Video.findByKeyword", query = "SELECT DISTINCT o.video FROM Favorite o"
+				+ " WHERE o.video.title LIKE:keyword"),
+		@NamedQuery(name = "Video.findByUser", query = "SELECT o.video FROM Favorite o" + " WHERE o.user.id=:id"),
+		@NamedQuery(name = "Video.findInRange", query = "SELECT DISTINCT o.video FROM Favorite o"
+				+ " WHERE o.likeDate BETWEEN :from AND :to"),
+
+})
+
+@NamedStoredProcedureQueries({
+		@NamedStoredProcedureQuery(name = "User.spFindAll", procedureName = "spFindAll", resultClasses = User.class, parameters = {
+				@StoredProcedureParameter(name = "id", type = Integer.class) }) })
+@Entity
+@Table(name = "videos")
+@NamedQuery(name = "Video.findAll", query = "SELECT u FROM Video u")
+public class Video {
+	@Id
+	@Column(name = "id")
+	String id;
+	@Column(name = "title")
+	String title;
+	@Column(name = "poster")
+	String poster;
+	@Column(name = "views")
+	int views;
+	@Column(name = "description")
+	String description;
+	@Column(name = "active")
+	Boolean active;
+	@OneToMany(mappedBy = "video")
+	List<Favorite> favorites;
+	@Column(name = "link")
+	String link;
+
+	public Video(String id, String title, String poster, int views, String description, Boolean active, String link) {
+		super();
+		this.id = id;
+		this.title = title;
+		this.poster = poster;
+		this.views = views;
+		this.description = description;
+		this.active = active;
+		this.link = link;
+	}
+
+	public Video() {
+		super();
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public String getLink() {
+		return link;
+	}
+
+	public void setLink(String link) {
+		this.link = link;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	public String getPoster() {
+		return poster;
+	}
+
+	public void setPoster(String poster) {
+		this.poster = poster;
+	}
+
+	public int getViews() {
+		return views;
+	}
+
+	public void setViews(int views) {
+		this.views = views;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public Boolean getActive() {
+		return active;
+	}
+
+	public void setActive(Boolean active) {
+		this.active = active;
+	}
+
+	@Override
+	public String toString() {
+		return "Video [id=" + id + ", title=" + title + ", poster=" + poster + ", views=" + views + ", description="
+				+ description + ", active=" + active + "]";
+	}
+
+}

@@ -1,0 +1,61 @@
+package entity;
+
+import java.io.Serializable;
+import java.sql.Date;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.NamedNativeQueries;
+import javax.persistence.NamedNativeQuery;
+import javax.persistence.NamedStoredProcedureQueries;
+import javax.persistence.NamedStoredProcedureQuery;
+import javax.persistence.StoredProcedureParameter;
+
+@NamedStoredProcedureQueries({
+		@NamedStoredProcedureQuery(name = "ReportFavoriteUser.spFavoriteByTitle", procedureName = "spFavoriteByTitle", parameters = {
+				@StoredProcedureParameter(name = "title", type = String.class) }) })
+@Entity
+public class ReportFavoriteUser implements Serializable {
+	@Id
+	Serializable group;
+	String fullname;
+	String email;
+	Date likeDate;
+
+	public ReportFavoriteUser() {
+		super();
+	}
+
+	public Serializable getGroup() {
+		return group;
+	}
+
+	public void setGroup(Serializable group) {
+		this.group = group;
+	}
+
+	public String getFullname() {
+		return fullname;
+	}
+
+	public void setFullname(String fullname) {
+		this.fullname = fullname;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public Date getLikeDate() {
+		return likeDate;
+	}
+
+	public void setLikeDate(Date likeDate) {
+		this.likeDate = likeDate;
+	}
+
+}

@@ -1,0 +1,65 @@
+package DAO;
+
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
+import javax.persistence.TypedQuery;
+
+import com.Utils.JpaUtils;
+
+import domain.ReportUser;
+import entity.Report;
+import entity.Favorite;
+import entity.User;
+import entity.Video;
+
+public class FavoritesDAO {
+	public void create(Favorite favorite) {
+		EntityManager em = com.Utils.JpaUtils.getEntityManager();
+		EntityTransaction trans = em.getTransaction();
+		try {
+			trans.begin();
+			em.persist(favorite);
+			trans.commit();
+			System.out.println("Thêm mới thành công!");
+		} catch (Exception e) {
+			e.printStackTrace();
+			trans.rollback();
+			System.out.println("Error:" + e.toString());
+			throw e;
+		} finally {
+			em.close();
+		}
+	}
+
+	public List<ReportUser> reportUsersByVideo(String videoId) {
+		String jpql = "select new edu.poly.domain.ReportUser(f.user.id, f.user.fullname, "
+				+ "f.user.email, f.likeDate) from Favorite f where f.video.id = :videoId";
+
+		EntityManager em = JpaUtils.getEntityManager();
+		List<ReportUser> list = null;
+		try {
+			TypedQuery<ReportUser> query = em.createQuery(jpql, ReportUser.class);
+			query.setParameter("videoId", videoId);
+			list = query.getResultList();
+		} finally {
+			em.close();
+		}
+		return list;
+	}
+	
+	public List<Favorite> findAll(){
+		EntityManager em = JpaUtils.getEntityManager();
+		String sql = "select * (o.video.title, count(o.id), max(o.likeDate), min(o.likeDate)) from Favorite o group by o.video.title ";
+		TypedQuery<Favorite> query = em.createQuery(sql,Favorite.class);
+		return query.getResultList();
+	}
+	
+	public void selectByAll() {
+		EntityManager em = JpaUtils.getEntityManager();
+		String jpql = "select new Report(o.video.title, count(o.id), max(o.likeDate), min(o.likeDate)) from Favorite o group by o.video.title";
+		List<Report> report = (List<Report>) em.createQuery(jpql, Report.class).getResultList();
+//		return query.getResultList();
+	}
+}

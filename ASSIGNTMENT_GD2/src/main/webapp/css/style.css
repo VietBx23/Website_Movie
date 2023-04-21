@@ -1,0 +1,94 @@
+
+body {
+    width: 100%;
+    margin: 0 auto;
+    background-color: rgba(5, 0, 0, 0.416);
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
+
+* {
+    font-family: 'Poppins', sans-serif;
+}
+
+/* img {
+    height: 280px;
+} */
+
+body {
+    background: hsl(0, 0, 94%);
+}
+
+:root {
+    --gradient: linear-gradient(to left top, #DD2476 30%, #FF512F 70%) !important;
+}
+
+body {
+    background: #111 !important;
+}
+
+.card {
+    background: #222;
+    border: 0.5px solid #6b092e;
+    /* border: 0.5px solid #dd2476; */
+    color: rgba(250, 250, 250, 0.8);
+    margin-bottom: 0.5rem;
+}
+.btn-login {
+            font-size: 0.9rem;
+            letter-spacing: 0.05rem;
+            padding: 0.75rem 1rem;
+        }
+
+        .btn-google {
+            color: white !important;
+            background-color: #ea4335;
+        }
+
+        .btn-facebook {
+            color: white !important;
+            background-color: #3b5998;
+        }
+
+.btn {
+    border: 1px solid;
+    border-image-slice: 1;
+    background: var(--gradient) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    border-image-source: var(--gradient) !important;
+    text-decoration: none;
+    transition: all .6s ease;
+}
+
+.btn:hover,
+.btn:focus {
+    background: var(--gradient) !important;
+    -webkit-background-clip: none !important;
+    -webkit-text-fill-color: #fff !important;
+    border: 1px solid #fff !important;
+    box-shadow: #222 1px 0 10px;
+    text-decoration: underline;
+}
+
+a {
+    font-size:14px;
+    font-weight:700
+  }
+  .superNav {
+    font-size:13px;
+  }
+  .form-control {
+    outline:none !important;
+    box-shadow: none !important;
+  }
+  @media screen and (max-width:540px){
+    .centerOnMobile {
+      text-align:center
+    }
+  }
+  img:hover {
+    box-shadow: 5.9px 7.8px 7.8px hsla(0, 10%, 56%, 0.96);
+  }
+
+

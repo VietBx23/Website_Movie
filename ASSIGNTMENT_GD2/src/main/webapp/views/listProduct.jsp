@@ -1,0 +1,78 @@
+<%@ page pageEncoding="utf-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<%@ taglib uri="http://java.sun.com/jstl/core_rt" prefix="c"%>
+<%@ taglib uri="http://java.sun.com/jstl/fmt_rt" prefix="fmt"%>
+
+<link rel="stylesheet"
+	href="${pageContext.request.contextPath}/css/style.css" />
+<title>Insert title here</title>
+</head>
+<body>
+
+	<div class="container-fluid col-sm-10 ">
+		<div class="card text-center">
+			<div class="card-body">
+
+				<div class="row">
+					<c:set var="id" value="${0}" scope="request"></c:set>
+					<c:forEach var="Video" items="${video}">
+						<c:set var="count" value="0" scope="request"></c:set>
+						<div class="col-sm-12 col-md-3 col-6">
+
+			
+							<div class="card">
+								<a href="/ASSIGNTMENT_GD2/detail?idProduct=${id}"
+									name="videoId"> <img src="image/${Video.poster}"
+									class="img-fluid" alt="">
+								</a>
+								<!-- class="card-img-top img-fluid rounded mx-auto d-block" alt="..."> -->
+								<div class="card-body">
+									<h5 class="card-title">${Video.title}</h5>
+									<p class="card-text">${Video.description}</p>
+									<a href="#" class="btn mr-2"><i class="fas fa-link"></i>LIKE</a>
+									<a href="/ASSIGNTMENT_GD2/sendMail?idProduct=${Video.id}"
+										class="btn "><i class="fab fa-SHARE"></i> SHARE</a>
+								</div>
+							</div>
+						</div>
+						<c:set var="id" value="${id+1}"></c:set>
+					</c:forEach>
+				</div>
+				<div class="card-footer text-muted">
+					<section id="page">
+						<nav aria-label="Page navigation example">
+							<ul class="pagination justify-content-center mt-4">
+								<c:if test="${currentPage ==1 }">
+									<li class="page-item disable"><a class="page-link"
+										href="#">Previous</a></li>
+								</c:if>
+								<c:if test="${currentPage > 1 }">
+									<li class="page-item"><a class="page-link"
+										href="index?page=${currentPage -1}">Previous</a></li>
+								</c:if>
+
+								<c:forEach varStatus="i" begin="1" end="${maxPage}">
+									<li class="page-item"><a
+										class="page-link ${currentPage == i.index ? 'active': ''} "
+										href="index?page=${i.index}">${i.index}</a></li>
+								</c:forEach>
+
+								<c:if test="${currentPage == maxPage }">
+									<li class="page-item disable"><a class="page-link"
+										href="#">Next</a></li>
+								</c:if>
+								<c:if test="${currentPage < maxPage}">
+									<li class="page-item"><a class="page-link"
+										href="index?page=${currentPage +1}">Next</a></li>
+								</c:if>
+							</ul>
+						</nav>
+					</section>
+				</div>
+			</div>
+		</div>
+</body>
+</html>
