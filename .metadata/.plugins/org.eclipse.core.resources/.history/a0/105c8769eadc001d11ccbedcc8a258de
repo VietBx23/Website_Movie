@@ -1,0 +1,117 @@
+package tamGiac;
+
+import org.testng.annotations.Test;
+
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.testng.Assert;
+import org.testng.annotations.DataProvider;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+public class TestTG {
+	TamGiac tamgiac = new TamGiac();
+	int l = 1;
+
+	@Test(dataProvider = "createPromo")
+	public void createPromo(String data) {
+		String[] parts = data.split("[\\:\n\\,]");
+		String expected = parts[parts.length - 1].trim();
+
+		int a = Integer.parseInt(parts[1].trim());
+		int b = Integer.parseInt(parts[3].trim());
+		int c = Integer.parseInt(parts[5].trim());
+
+		System.out.println(expected);
+
+		l++;
+
+		try {
+			if (a <= 0 || b <= 0 || c <= 0 || a > 10 || b > 10) {
+				throw new Exception("WRONG NUMBER");
+			}
+
+			if ((a + b) <= c || (a + c) <= b || (b + c) <= a) {
+				throw new Exception("NOT A TRIG");
+			}
+
+			System.out.println(a);
+			System.out.println(b);
+			System.out.println(c);
+
+			if (expected.equals("PROMO_FORM_SUCCESS")) {
+				writeExcel("PROMO_FORM_SUCCESS", "PASS");
+			} else {
+				writeExcel("PROMO_FORM_SUCCESS", "FAIL");
+			}
+			Assert.assertEquals(expected, "PROMO_FORM_SUCCESS");
+		} catch (Exception e) {
+			if (e.getMessage().equals(expected.trim())) {
+				writeExcel(e.getMessage(), "PASS");
+			} else {
+				writeExcel(e.getMessage(), "FAIL");
+			}
+			Assert.assertEquals(e.getMessage(), expected.trim());
+		}
+	}
+
+	@DataProvider(name = "createPromo")
+	public Iterator<Object[]> readExcel() {
+		try {
+			FileInputStream file = new FileInputStream(new File("C:\\STUDY\\SOF3011\\PS22788_BUIXUANVIET_ASSIGNTMENT_GD2\\PS22788_XuanViet\\TestCases.xlsx"));
+			XSSFWorkbook workbook = new XSSFWorkbook(file);
+			XSSFSheet sheet = workbook.getSheetAt(0);
+			List<Object[]> list = new ArrayList<>();
+			for (int i = 2; i < 12; i++) {
+				Row row = sheet.getRow(i);
+				Object[] o = new Object[] {
+						row.getCell(2).toString() + row.getCell(3).toString() + row.getCell(4).toString() };
+				list.add(o);
+			}
+			file.close();
+			Iterator<Object[]> ob = new Iterator<Object[]>() {
+				int k = -2;
+
+				@Override
+				public boolean hasNext() {
+					while (k < list.size() - 1) {
+						k++;
+						return true;
+					}
+					return false;
+				}
+
+				@Override
+				public Object[] next() {
+					return new Object[] { list.get(k)[0].toString() };
+				}
+			};
+			return ob;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public void writeExcel(String actual, String status) {
+		try {
+			FileInputStream file = new FileInputStream(new File(""));
+			XSSFWorkbook workbook = new XSSFWorkbook(file);
+			XSSFSheet sheet = workbook.getSheetAt(0);
+			Row roww = sheet.getRow(l);
+			roww.getCell(5).setCellValue(actual);
+			roww.getCell(6).setCellValue(status);
+			FileOutputStream os = new FileOutputStream("/Users/nhatsdevil/Desktop/ASM/TestCases.xlsx");
+			workbook.write(os);
+			file.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+}

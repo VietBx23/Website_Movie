@@ -1,0 +1,36 @@
+import java.util.Scanner;
+
+public class TamGiac {
+	public static void main(String[] args) {
+		int a,b,c;
+		float p, s, cv;
+		a = NhapSoNguyen("nhap canh a: ");
+		b= NhapSoNguyen("nhap canh b: "); 
+		c= NhapSoNguyen("nhap canh c: ");
+		p = nuaChuVi(a,b,c);
+		s =dienTich(a,b,c);
+		cv=chuVi(a,b,c);
+		System.out.println("nua chu vi hinh tam giac la: "+p);
+		System.out.println("chu vi hinh tam giac la: "+cv);
+		System.out.println("dien tich hinh tam giac la: "+s);
+	}
+	public static int NhapSoNguyen(String str) {
+		int x; 
+		Scanner sc = new Scanner(System.in);
+		System.out.println(str);
+		x= sc.nextInt();
+		return x;
+	}
+	public static float nuaChuVi(int a, int b, int c) {
+		return (float) (a+b+c)/2;
+	}
+	public static float chuVi(int a, int b, int c) {
+		return a+b+c;
+	}
+	public static float dienTich(int a, int b, int c) {
+		float p = (float) (a+b+c)/2;
+		float sd; 
+		sd = (float) Math.sqrt(p*(p-a)*(p-b)*(p-c));
+		return sd;
+	}
+}

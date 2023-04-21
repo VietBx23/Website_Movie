@@ -1,0 +1,70 @@
+package entity;
+
+import java.io.Serializable;
+import java.sql.Date;
+
+import javax.persistence.Id;
+
+public class reportShareVideo {
+	@Id
+	Serializable group;
+	String senderName;
+	String senderEmail;
+	String receiveEmail;
+	Date sendDate;
+
+	public reportShareVideo() {
+		super();
+	}
+
+	public reportShareVideo(Serializable group, String senderName, String senderEmail, String receiveEmail,
+			Date sendDate) {
+		super();
+		this.group = group;
+		this.senderName = senderName;
+		this.senderEmail = senderEmail;
+		this.receiveEmail = receiveEmail;
+		this.sendDate = sendDate;
+	}
+
+	public Serializable getGroup() {
+		return group;
+	}
+
+	public void setGroup(Serializable group) {
+		this.group = group;
+	}
+
+	public String getSenderName() {
+		return senderName;
+	}
+
+	public void setSenderName(String senderName) {
+		this.senderName = senderName;
+	}
+
+	public String getSenderEmail() {
+		return senderEmail;
+	}
+
+	public void setSenderEmail(String senderEmail) {
+		this.senderEmail = senderEmail;
+	}
+
+	public String getReceiveEmail() {
+		return receiveEmail;
+	}
+
+	public void setReceiveEmail(String receiveEmail) {
+		this.receiveEmail = receiveEmail;
+	}
+
+	public Date getSendDate() {
+		return sendDate;
+	}
+
+	public void setSendDate(Date sendDate) {
+		this.sendDate = sendDate;
+	}
+
+}

@@ -1,0 +1,169 @@
+package servlets;
+
+import java.io.IOException;
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import javax.persistence.TypedQuery;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.beanutils.BeanUtils;
+
+import Dao.BooksDAO;
+import Entity.Book;
+
+@WebServlet({ "/BooksServlet", "/BooksServlet/Create", "/BooksServlet/Update", "/BooksServlet/Delete",
+		"/BooksServlet/Edit", "/BooksServlet/Reset", "/BooksServlet/Search" })
+public class BookServlet extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+
+	@Override
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		// TODO Auto-generated method stub
+		String uri = req.getRequestURI();
+		Book Book = null;
+		if (uri.contains("Create")) {
+			create(req, resp);
+			// Books = new Books();
+			req.setAttribute("Books", Book);
+		}
+		if (uri.contains("Delete")) {
+			remove(req, resp);
+			Book = new Book();
+			req.setAttribute("Books", Book);
+		}
+		if (uri.contains("Update")) {
+			update(req, resp);
+			req.setAttribute("Books", Book);
+		}
+		if (uri.contains("Reset")) {
+			Book = new Book();
+			req.setAttribute("Books", Book);
+			req.setAttribute("disable", "");
+		}
+		if (uri.contains("Edit")) {
+			edit(req, resp);
+		}
+		if (uri.contains("Search")) {
+			find(req, resp);
+			req.setAttribute("Books", Book);
+		}
+		findAll(req, resp);
+		req.getRequestDispatcher("/views/managerBooks.jsp").forward(req, resp);
+
+	}
+
+	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		req.setCharacterEncoding("utf-8");
+		resp.setCharacterEncoding("utf-8");
+		String uri = req.getRequestURI();
+		if (uri.contains("Create")) {
+			create(req, resp);
+		}
+		if (uri.contains("Update")) {
+			update(req, resp);
+		}
+		if (uri.contains("Delete")) {
+			remove(req, resp);
+			req.setAttribute("Books", new Book());
+		}
+		if (uri.contains("Reset")) {
+			req.setAttribute("disable", "");
+			req.setAttribute("Books", new Book());
+		}
+		if (uri.contains("Search")) {
+			find(req, resp);
+			req.setAttribute("Books", new Book());
+		}
+		findAll(req, resp);
+		req.getRequestDispatcher("/page/managerBooks.jsp").forward(req, resp);
+//		req.getRequestDispatcher("/views/Books.jsp").forward(req, resp);
+	}
+
+	public void findAll(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		try {
+			BooksDAO dao = new BooksDAO();
+			List<Book> list = dao.findAll();
+			req.setAttribute("Books", list);
+			System.out.println(list);
+		} catch (Exception e) {
+			e.printStackTrace();
+			req.setAttribute("error", "Error" + e.getMessage());
+		}
+	}
+
+	public void edit(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		try {
+			String BooksID = req.getParameter("id");
+			BooksDAO dao = new BooksDAO();
+			Book Book = dao.findByID(BooksID);
+			req.setAttribute("disable", "disable");
+			req.setAttribute("Book", Book);
+			System.out.println(Book);
+		} catch (Exception e) {
+			e.printStackTrace();
+			req.setAttribute("error", "Error" + e.getMessage());
+		}
+	}
+
+	public void update(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		try {
+			Book Book = new Book();
+			BeanUtils.populate(Book, req.getParameterMap());
+			BooksDAO dao = new BooksDAO();
+			dao.update(Book);
+			req.setAttribute("disable", "");
+			req.setAttribute("message", "Books update successfully");
+		} catch (Exception e) {
+			e.printStackTrace();
+			req.setAttribute("disable", "disable");
+			req.setAttribute("error", "Error" + e.getMessage());
+		}
+	}
+
+	public void create(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		try {
+			Book Book = new Book();
+			BeanUtils.populate(Book, req.getParameterMap());
+			BooksDAO dao = new BooksDAO();
+			dao.create(Book);
+			req.setAttribute("message", "Books create successfully");
+			findAll(req, resp);
+		} catch (Exception e) {
+			e.printStackTrace();
+			req.setAttribute("error", "Error" + e.getMessage());
+		}
+	}
+
+	public void remove(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		try {
+			String id = req.getParameter("Books_Id");
+			BooksDAO dao = new BooksDAO();
+			dao.delete(id);
+			req.setAttribute("message", "Books delete successfully");
+		} catch (Exception e) {
+			e.printStackTrace();
+			req.setAttribute("error", "Error" + e.getMessage());
+		}
+	}
+
+	EntityManagerFactory emf = Persistence.createEntityManagerFactory("ManagerBook");
+	EntityManager em = emf.createEntityManager();
+
+	public void find(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		String videoId = req.getParameter("BooksId");
+		System.out.println(videoId);
+		String jpql = "SELECT o FROM Books o where o.Books_Id = :id";
+		TypedQuery<Book> query = (TypedQuery<Book>) em.createQuery(jpql);
+		query.setParameter("id", videoId);
+		List<Book> list = query.getResultList();
+		req.setAttribute("Books", list);
+		req.getRequestDispatcher("/views/ManagerBooks.jsp").forward(req, resp);
+	}
+}

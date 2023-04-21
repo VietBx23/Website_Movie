@@ -1,0 +1,453 @@
+package com.client;
+
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Date;
+import java.util.List;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import org.apache.catalina.Session;
+import org.apache.commons.beanutils.BeanUtils;
+
+import com.Utils.SessionU;
+import com.Utils.SessionUtils;
+
+import DAO.UserDAO;
+import DAO.VideoDAO;
+import domain.ChangePassF;
+import entity.User;
+
+import entity.Share;
+import entity.Video;
+
+import com.Utils.EmailUtils;
+import domain.Email;
+
+@WebServlet({ "/login", "/regis", "/logout", "/change", "/forgotPass", "/editPro", "/shareVideo" })
+public class AccountServlet extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+
+	private UserDAO daoUser = new UserDAO();
+	private VideoDAO daoVideo = new VideoDAO();
+
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		String uri = req.getRequestURI();
+		HttpSession session = req.getSession();
+		if (uri.contains("login")) {
+			req.getRequestDispatcher("/views/login.jsp").forward(req, resp);
+		} else if (uri.contains("logout")) {
+			logout(session, req, resp);
+		} else if (uri.contains("regis")) {
+			req.getRequestDispatcher("/views/signUp.jsp").forward(req, resp);
+		} else if (uri.contains("change")) {
+			req.getRequestDispatcher("/views/changePassWord.jsp").forward(req, resp);
+		} else if (uri.contains("forgotPass")) {
+			req.getRequestDispatcher("/views/forgotPassWord.jsp").forward(req, resp);
+		} else if (uri.contains("editPro")) {
+			req.getRequestDispatcher("/views/editProfile.jsp").forward(req, resp);
+		} else if (uri.contains("shareVideo")) {
+			req.getRequestDispatcher("/views/sendMail.jsp").forward(req, resp);
+		}
+
+	}
+
+	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		String uri = req.getRequestURI();
+		HttpSession session = req.getSession();
+		if (uri.contains("login")) {
+			login(session, req, resp);
+//			 req.getRequestDispatcher("/views/login.jsp").forward(req, resp);
+		} else if (uri.contains("regis")) {
+			register(session, req, resp);
+		} else if (uri.contains("change")) {
+
+		}
+
+		else if (uri.contains("forgotPass")) {
+			forgotPass(req, resp);
+		} else if (uri.contains("editPro")) {
+			doEditProfile(session, req, resp);
+		} else if (uri.contains("shareVideoo")) {
+			shareVideo(req, resp);
+		}
+	}
+
+	public void login(HttpSession session, HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
+		try {
+			String username = req.getParameter("username");
+			String password = req.getParameter("password");
+			User user = daoUser.login(username, password);
+			if (user != null && user.getAdmin() == true) {
+				session.setAttribute(SessionU.CURENT_USER, user);
+				resp.sendRedirect("admin");
+			} else if (user != null) {
+				session.setAttribute(SessionU.CURENT_USER, user);
+				resp.sendRedirect("index");
+			} else {
+				System.out.println(user);
+				resp.sendRedirect("login");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			req.setAttribute("error", "Error" + e.getMessage());
+		}
+
+	}
+
+	public void logout(HttpSession session, HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
+		session.removeAttribute(SessionU.CURENT_USER);
+		resp.sendRedirect("index");
+	}
+
+	public void register(HttpSession session, HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
+		String username = req.getParameter("id");
+		String password = req.getParameter("password");
+		String email = req.getParameter("email");
+		String fullname = req.getParameter("fullname");
+
+		User user = new User();
+		user.setId(username);
+		user.setPassword(password);
+		user.setEmail(email);
+		user.setFullname(fullname);
+		user.setAdmin(false);
+		daoUser.create(user);
+		if (user != null) {
+			session.setAttribute(SessionU.CURENT_USER, user);
+			resp.sendRedirect("index");
+		} else {
+			resp.sendRedirect("regis");
+		}
+	}
+
+	private void doEditProfile(HttpSession session, HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
+
+		try {
+			User user = new User();
+			BeanUtils.populate(user, req.getParameterMap());
+			UserDAO dao = new UserDAO();
+			dao.update(user);
+			req.setAttribute("disable", "");
+			req.setAttribute("messageEdit", "User update successfully");
+			Thread.sleep(5000);
+			resp.sendRedirect("index");
+		} catch (Exception e) {
+			e.printStackTrace();
+			req.setAttribute("disable", "disable");
+			req.setAttribute("error", "Error" + e.getMessage());
+		}
+
+	}
+
+	public void changePassword(HttpSession session, HttpServletRequest request, HttpServletResponse resp)
+			throws Exception {
+		try {
+			String username = SessionUtils.getLoginedUsername(request);
+			ChangePassF form = new ChangePassF();
+			BeanUtils.populate(form, request.getParameterMap());
+		    String currentPassword = request.getParameter("currentPassword");
+		    String newPassword = request.getParameter("newPassword");
+		    String confirmPassword = request.getParameter("confirmPassword");
+			String username1 = (String) session.getAttribute("username");
+
+			form.setCurrentPassowrd(currentPassword);
+			form.setConfirmPassword(confirmPassword);
+			request.setAttribute("username", username);
+			String jdbcUrl = "jdbc:mysql://localhost/mydatabase";
+			String jdbcUsername = "root";
+			String jdbcPassword = "mypassword";
+			Connection conn = null;
+			PreparedStatement stmt = null;
+
+			try {
+				Class.forName("com.mysql.jdbc.Driver");
+				conn = DriverManager.getConnection(jdbcUrl, jdbcUsername, jdbcPassword);
+
+				// Query the user's existing password from your database
+				String query = "SELECT password FROM users WHERE username=?";
+				stmt = conn.prepareStatement(query);
+				stmt.setString(1, username);
+				ResultSet rs = stmt.executeQuery();
+				String dbPassword = null;
+				if (rs.next()) {
+					dbPassword = rs.getString("password");
+				}
+				stmt.close();
+
+				// Verify that the user's current password matches the password in the database
+				if (!currentPassword.equals(dbPassword)) {
+					System.out.println("Incorrect current password.");
+				} else {
+					// Verify that the new password and confirm password fields match
+					if (!newPassword.equals(confirmPassword)) {
+						System.out.println("New password and confirm password do not match.");
+					} else {
+						// Update the user's password in the database
+						String update = "UPDATE users SET password=? WHERE username=?";
+						stmt = conn.prepareStatement(update);
+						stmt.setString(1, newPassword);
+						stmt.setString(2, username);
+						stmt.executeUpdate();
+						stmt.close();
+						System.out.println("Password updated successfully.");
+					}
+				}
+			} catch (SQLException e) {
+				System.out.println("SQL Exception: " + e.getMessage());
+			} catch (ClassNotFoundException e) {
+				System.out.println("Class Not Found Exception: " + e.getMessage());
+			} finally {
+				try {
+					if (stmt != null) {
+						stmt.close();
+					}
+					if (conn != null) {
+						conn.close();
+					}
+				} catch (SQLException e) {
+					System.out.println("SQL Exception: " + e.getMessage());
+				}
+			}
+////			if (form.getConfirmPasswrod().equals(form.getPassword())) {
+////				request.setAttribute("error", "New password and new confirm password are not identical.");
+////			} else {
+//			User user = new User();
+////			user.setId(id);
+//			user.setPassword(currentPassword);
+////			user.setEmail("XuanViet060620003@gmail.com");
+//
+//			BeanUtils.populate(user, request.getParameterMap());
+//			UserDAO dao = new UserDAO();
+//			dao.updateE(id, currentpassword);
+////			dao.changePassword(form.getUsername(), form.getCurrentPassowrd(), form.getPassword());
+//			request.setAttribute("message", "Password has been changed!");
+////			
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			request.setAttribute("error", "Error: " + e.getMessage());
+		}
+
+	}
+
+	public void forgotPass(HttpServletRequest req, HttpServletResponse resp) {
+		try {
+			UserDAO dao = new UserDAO();
+			String emailFrom = "vietbx23@gmail.com";
+			String passForm = "ncwjbtrlddlgijeb";
+			String emailTo = req.getParameter("email");
+			String username = req.getParameter("username");
+			User user = dao.findByUserEmail(username, emailTo);
+			if (user == null) {
+				req.setAttribute("error", "Username or email are incorrect");
+			} else {
+				domain.Email email = new domain.Email();
+				email.setFrom(emailFrom);
+				email.setFromPassword(passForm);
+				email.setTo(emailTo);
+				email.setSubject("Forgot Password | BXVMEDIA");
+				String msg = "Dear, " + user.getFullname()
+						+ "<br/>You are used the forgot password function.<br/>Your password is <b>"
+						+ user.getPassword() + "</b><br/>Regards<br/>Administrator";
+				email.setContent(msg);
+				com.Utils.EmailUtils.send(email);
+				req.setAttribute("message", "Email has been sent! Please check and get your password.");
+				Thread.sleep(5000);
+				resp.sendRedirect("index");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			req.setAttribute("error", "Error: " + e.getMessage());
+		}
+	}
+
+	public void shareVideo(HttpServletRequest request, HttpServletResponse response) {
+		try {
+			List<Video> video1 = daoVideo.findAll();
+			int idProduct = Integer.parseInt(request.getParameter("idProduct"));
+			request.setAttribute("video", video1.get(idProduct));
+			Share share = new Share();
+			Video video = new Video();
+			User user = new User();
+			String id = SessionUtils.getLoginedUsername(request);
+			String emailFrom = "vietbx23@gmail.com";
+			String passForm = "ncwjbtrlddlgijeb";
+
+			String emailAddress = request.getParameter("email");
+			String videoId = request.getParameter("videoId");
+			request.setAttribute("videoId", videoId);
+
+			if (videoId == null) {
+				request.setAttribute("error", "Video Id is null");
+			} else {
+				Email email = new Email();
+				email.setFrom(emailFrom);
+				email.setFromPassword(passForm);
+				email.setTo(emailAddress);
+				email.setSubject("Share Video | NGHIENPHIM");
+				String msg = "Dear Ms/Mr. <br>The video is more interesting and I want to share with you.<br/>"
+						+ "Vui lòng nhấp vào liên kết <a href='http://localhost:8080/WebVideo/detail?videoId=" + videoId
+						+ "'> Xem video </a><br/>Regards<br/>Administrator";
+				email.setContent(msg);
+				EmailUtils.send(email);
+				BeanUtils.populate(share, request.getParameterMap());
+				share.setShareDate(new Date());
+				user.setId(id);
+				video.setId(videoId);
+				// dao.insert(share);
+				request.setAttribute("message", "Video link has been sent!");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			request.setAttribute("error", "Error: " + e.getMessage());
+		}
+//		PageInfo.prepareAndForwardSite(request, response, PageType.SITE_SHARE_PAGE);
+	}
+}
+
+//package com.client;
+//
+//import java.io.IOException;
+//import javax.servlet.ServletException;
+//import javax.servlet.annotation.WebServlet;
+//import javax.servlet.http.HttpServlet;
+//import javax.servlet.http.HttpServletRequest;
+//import javax.servlet.http.HttpServletResponse;
+//import javax.servlet.http.HttpSession;
+//
+//import org.apache.commons.beanutils.BeanUtils;
+//
+//import com.Utils.SessionU;
+//
+//import entity.User;
+//
+//import DAO.UserDAO;
+//import domain.ChangePassF;
+//import domain.Email;
+//
+//@WebServlet({ "/login", "/sign-up", "/logout" })
+//public class AccountServlet extends HttpServlet {
+////	private static final long serialVersionUID = 1L;
+//
+//	@Override
+//	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+//		// TODO Auto-generated method stub
+//		String uri = req.getRequestURI();
+//		HttpSession session = req.getSession();
+//		if (uri.contains("login")) {
+//			req.getRequestDispatcher("/views/login.jsp").forward(req, resp);
+//		} else if (uri.contains("logout")) {
+////			logout(session, req, resp);
+//		} else if (uri.contains("sign-up")) {
+//			req.getRequestDispatcher("/views/sign-up.jsp").forward(req, resp);
+//		}
+//
+////		if (uri.contains("sign-in")) {
+////			
+////		} else if (uri.contains("sign-up")) {
+////			this.doSignUp(req, resp);
+////		} else if (uri.contains("sign-out")) {
+////		} else if (uri.contains("forgot-password")) {
+////		} else if (uri.contains("change-password")) {
+////		} else if (uri.contains("edit-profile")) {
+////			this.doEditProfile(req, resp);
+////		}
+////		req.getRequestDispatcher("/views/login.jsp").forward(req, resp);
+//	}
+//
+//	@Override
+//	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+//		// TODO Auto-generated method stub
+//		String uri = req.getRequestURI();
+//		HttpSession session = req.getSession();
+//		if (uri.contains("login")) {
+//			doSignIn(req, resp);
+//			;
+//			// req.getRequestDispatcher("/views/login.jsp").forward(req, resp);
+//		} else if (uri.contains("sign-up")) {
+//			doSignUp(req, resp);
+//			;
+//		}
+//	}
+//
+//	protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+//
+//	}
+//
+//	public void doSignIn(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+//		String method = req.getMethod();
+//		if (method.equalsIgnoreCase("POST")) {
+//			// TODO: ĐĂNG NHẬP
+//			String id = req.getParameter("username");
+//			String pw = req.getParameter("password");
+//			try {
+//				UserDAO dao = new UserDAO();
+//				User user = dao.loGin(id, pw);
+//
+//				if (user != null && user.getAdmin() == true) {
+//					req.setAttribute(SessionU.CURENT_USER, user);
+//					resp.sendRedirect("admin");
+//				} else if (user != null) {
+//					req.setAttribute(SessionU.CURENT_USER, user);
+//					resp.sendRedirect("index");
+//				} else {
+//					resp.sendRedirect("login");
+//				}
+//			} catch (Exception e) {
+//				resp.sendRedirect("login");
+//			}
+//		}
+//
+//	}
+//
+//	public void doSignUp(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+//		String method = req.getMethod();
+//		if (method.equalsIgnoreCase("POST")) {
+//			// TODO: ĐĂNG KÝ
+//			try {
+//				User entity = new User();
+//				BeanUtils.populate(entity, req.getParameterMap());
+//				UserDAO dao = new UserDAO();
+//				dao.create(entity);
+//				req.setAttribute("messageSignUp", "Đăng ký thành công!");
+//			} catch (Exception e) {
+//				req.setAttribute("messageSignUp", "Lỗi đăng ký!");
+//				e.printStackTrace();
+//			}
+//		}
+//		req.getRequestDispatcher("/views/signUp.jsp").forward(req, resp);
+//	}
+//
+//	private void doEditProfile(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+//		User user = (User) req.getSession().getAttribute("user");
+//		String method = req.getMethod();
+//		if (method.equalsIgnoreCase("POST")) {
+//			// TODO: CẬP NHẬT
+//			try {
+//				BeanUtils.populate(user, req.getParameterMap());
+//				UserDAO dao = new UserDAO();
+//				dao.update(user);
+//				req.setAttribute("messageEdit", "Cập nhật tài khoản thành công!");
+//			} catch (Exception e) {
+//				req.setAttribute("messageEdit", "Lỗi cập nhật tài khoản!");
+//			}
+//
+//		}
+//		req.getRequestDispatcher("/views/editProfilse.jsp").forward(req, resp);
+//	}
+//
+//}

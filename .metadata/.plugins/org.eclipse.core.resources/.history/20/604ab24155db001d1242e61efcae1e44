@@ -1,0 +1,79 @@
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+	pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Insert title here</title>
+</head>
+<body>
+	<div class="container mb-3">
+		<div class="row">
+			<div class="col-sm-2">
+				<p>Title</p>
+			</div>
+			<div class="col-sm-7">
+				<c:set var="count" value="${count+1}" scope="request"></c:set>
+				<select class="form-select" name="filerSach"
+					aria-label="Default select example">
+					<p>Title</p>
+					<c:forEach var="item" items="${Clients}">
+						<option value="${item.hoten}">${item.hoten}</option>
+					</c:forEach>
+				</select>
+			</div>
+			<div class="col-sm-3">
+				<button
+					formaction="http://localhost:8080/ManagerClient/ClientsServlet/Search">Search</button>
+			</div>
+		</div>
+	</div>
+	<div class="input-group container col-sm-3">
+		<input type="search" name="loaisach" class="form-control rounded"
+			placeholder="Search" aria-label="Search"
+			aria-describedby="search-addon" />
+		<button type="submit" class="btn btn-outline-primary"
+			formaction="http://localhost:8080/ManagerClient/ClientsServlet/Search">search</button>
+	</div>
+	<br>
+	<div class="container mb-3">
+		<table class="table ">
+			<thead class="table-dark">
+				<tr>
+					<th>UserName</th>
+					<th>PassWord</th>
+					<th>Họ Tên</th>
+					<th>Giới Tính</th>
+					<th>Email</th>
+					<th>Edit</th>
+				</tr>
+			</thead>
+			<tbody>
+				<c:set var="count" value="${0}" scope="request"></c:set>
+				<c:forEach var="item" items="${Clients}">
+					<c:set var="count" value="${count+1}" scope="request"></c:set>
+					<tr class="table-bordered table-success">
+
+						<td>${item.username }</td>
+						<td>${item.password}</td>
+						<td>${item.hoten}</td>
+						<td>${item.gioitinh }</td>
+						<td>${item.email}</td>
+						<td><a
+							href="/ManagerClient/ClientsServlet/Edit?id=${item.username}">Edit</a>
+
+						</td>
+					</tr>
+				</c:forEach>
+
+			</tbody>
+		</table>
+
+
+	</div>
+	</form>
+	</div>
+
+	</div>
+</body>
+</html>

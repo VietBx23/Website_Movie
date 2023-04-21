@@ -1,0 +1,76 @@
+package Dao;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
+
+import Entity.Books;
+import Entity.Product;
+import Util.Jpa;
+import utils.JpaUtils;
+
+public class BookDAO {
+
+	public void create(Books product) {
+		EntityManager em = JpaUtils.getEntityManager();
+		EntityTransaction trans = em.getTransaction();
+		try {
+			trans.begin();
+//			Product.setId("Kiet");
+//			Product.setFullname("Lê Anh Kiệt");
+//			Product.setEmail("kiet@gmail.com");
+//			Product.setPassword("123456");
+//			Product.setAdmin(true);
+			em.persist(product);
+			trans.commit();
+			System.out.println("Thêm mới thành công!");
+		} catch (Exception e) {
+			e.printStackTrace();
+			trans.rollback();
+			System.out.println("Error:" + e.toString());
+			throw e;
+		} finally {
+			em.close();
+		}
+	}
+
+	public void update(Product product) {
+		EntityManager em = Jpa.getEntityManager();
+		EntityTransaction trans = em.getTransaction();
+		try {
+			trans.begin();
+//			Product = em.find(Product.class, "Kiet");
+//			Product.setPassword("kiet123");
+
+			em.merge(product);
+			trans.commit();
+			System.out.println("Cập nhật thành công!");
+		} catch (Exception e) {
+			e.printStackTrace();
+			trans.rollback();
+			throw e;
+		} finally {
+			em.close();
+		}
+	}
+
+	public void delete(String id) throws Exception {
+		EntityManager em = Jpa.getEntityManager();
+		EntityTransaction trans = em.getTransaction();
+		try {
+			trans.begin();
+			Product pro = em.find(Product.class, id);
+			if (pro != null) {
+				em.remove(pro);
+			} else {
+				throw new Exception("This Product does not exist");
+			}
+			trans.commit();
+		} catch (Exception e) {
+			e.printStackTrace();
+			trans.rollback();
+			throw e;
+		} finally {
+			em.close();
+		}
+	}
+}

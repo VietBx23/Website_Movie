@@ -1,0 +1,67 @@
+package entity;
+
+import java.io.Serializable;
+import java.sql.Date;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.NamedNativeQueries;
+import javax.persistence.NamedNativeQuery;
+@NamedNativeQueries({
+	@NamedNativeQuery(name = "Report.random10", query = "select top 10 * from Videos order by newid()", resultClass = Video.class) })
+@NamedNativeQuery(name = "printVideoFavotite", query = "select DISTINCT o.id, o.title, o.poster, o.description, o.active, o.views, o.link from videos o inner join favorites f on o.id = f.videoId; ", resultClass = Video.class)
+
+})
+@Entity
+public class ReportFavoriteUser implements Serializable {
+	@Id
+	Serializable group;
+	String fullName;
+	String Email;
+	Date favoriteDate;
+
+	public ReportFavoriteUser() {
+		super();
+	}
+
+	public ReportFavoriteUser(Serializable group, String fullName, String email, Date favoriteDate) {
+		super();
+		this.group = group;
+		this.fullName = fullName;
+		Email = email;
+		this.favoriteDate = favoriteDate;
+	}
+
+	public Serializable getGroup() {
+		return group;
+	}
+
+	public void setGroup(Serializable group) {
+		this.group = group;
+	}
+
+	public String getFullName() {
+		return fullName;
+	}
+
+	public void setFullName(String fullName) {
+		this.fullName = fullName;
+	}
+
+	public String getEmail() {
+		return Email;
+	}
+
+	public void setEmail(String email) {
+		Email = email;
+	}
+
+	public Date getFavoriteDate() {
+		return favoriteDate;
+	}
+
+	public void setFavoriteDate(Date favoriteDate) {
+		this.favoriteDate = favoriteDate;
+	}
+
+}

@@ -1,0 +1,60 @@
+package com.Utils;
+
+import java.io.IOException;
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import entity.Video;
+
+@WebServlet("/FavoriteVideo1")
+public class FavoriteServlet extends HttpServlet {
+	@Override
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		// TODO Auto-generated method stub
+		find(req, resp);
+		req.getRequestDispatcher("views/favorite.jsp").forward(req, resp);
+	}
+
+	EntityManagerFactory emf = Persistence.createEntityManagerFactory("Movies");
+	EntityManager em = emf.createEntityManager();
+
+	@Override
+	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		// TODO Auto-generated method stub
+		try {
+			String jpql = "select o from Video o where o.favorites IS EMPTY";
+
+			List<Video> list = (List<Video>) em.createQuery(jpql, Video.class).getResultList();
+			System.out.println(list);
+			req.setAttribute("videos", list);
+			req.getRequestDispatcher("/views/favorite.jsp").forward(req, resp);
+		} catch (Exception e) {
+			// TODO: handle exception
+			
+			e.printStackTrace();
+		}
+
+	}
+
+	public void find(HttpServletRequest req, HttpServletResponse resp) {
+		try {
+			String jpql = "select o from Video o where o.favorites IS EMPTY";
+
+			List<Video> list = (List<Video>) em.createQuery(jpql, Video.class).getResultList();
+			System.out.println(list);
+			req.setAttribute("videos", list);
+			req.getRequestDispatcher("/views/favorite.jsp").forward(req, resp);
+		} catch (Exception e) {
+			e.printStackTrace();
+			// TODO: handle exception
+		}
+	}
+}

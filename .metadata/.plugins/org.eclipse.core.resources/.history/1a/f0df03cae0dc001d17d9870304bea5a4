@@ -1,0 +1,140 @@
+package tamGiac;
+
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.testng.Assert;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+
+public class TamGiacTest {
+
+	public void TamGiac(String a, String b, String c) throws Exception {
+		if (a.isEmpty() || b.isEmpty() || b.isEmpty()) {
+			throw new Exception("FAIL");
+		}
+		try {
+			int c1 = Integer.parseInt(a);
+			int c2 = Integer.parseInt(b);
+			int c3 = Integer.parseInt(c);
+			if (c1 > 0 || c1 <= 10 || c2 > 0 || c2 <= 10) {
+				throw new Exception("FAIL");
+			}
+		} catch (Exception e) {
+			throw new Exception("FAIL");
+		}
+	}
+
+	int l = 1;
+
+	@Test(dataProvider = "createPromo")
+	public void addAccount(String data) {
+		String[] parts = data.split("[\\:\n\\,]");
+		String expected = parts[parts.length - 1].trim();
+
+		l++;
+
+		try {
+			String a = parts[1].trim();
+			String b = parts[3].trim();
+			String c = parts[5].trim();
+
+			TamGiac(a, b, c);
+
+			if (expected.equals("PASS")) {
+				writeExcel("PASS", "PASS");
+			} else {
+				writeExcel("PASS", "FAIL");
+			}
+			Assert.assertEquals(expected, "PASS");
+		} catch (Exception e) {
+			System.out.println("EXPECTED RESULT ERROR");
+			System.out.println(expected);
+			System.out.println(e.getMessage());
+			if (e.getMessage().equals(expected.trim())) {
+				writeExcel(e.getMessage(), "PASS");
+			} else {
+				writeExcel(e.getMessage(), "FAIL");
+			}
+			Assert.assertEquals(e.getMessage(), expected.trim());
+		}
+	}
+
+	@DataProvider(name = "createPromo")
+	public Iterator<Object[]> readExcel() {
+		try {
+			FileInputStream file = new FileInputStream(new File(
+					"C:\\STUDY\\SOF3011\\PS22788_BUIXUANVIET_ASSIGNTMENT_GD2\\PS22788_XuanViet\\testTamGiac.xlsx"));
+			XSSFWorkbook workbook = new XSSFWorkbook(file);
+			XSSFSheet sheet = workbook.getSheetAt(0);
+			List<Object[]> list = new ArrayList<>();
+			for (int i = 2; i < 22; i++) {
+				Row row = sheet.getRow(i);
+				Object[] o = new Object[] { row.getCell(3).toString() + row.getCell(4).toString() };
+				list.add(o);
+			}
+			file.close();
+			Iterator<Object[]> ob = new Iterator<Object[]>() {
+				int k = -2;
+
+				@Override
+				public boolean hasNext() {
+					while (k < list.size() - 1) {
+						k++;
+						return true;
+					}
+					return false;
+				}
+
+				@Override
+				public Object[] next() {
+					return new Object[] { list.get(k)[0].toString() };
+				}
+			};
+			return ob;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public void writeExcel(String actual, String status) {
+		System.out.println("WRITE EXCEL " + actual + " " + status);
+		try {
+			FileInputStream file = new FileInputStream(new File(
+					"C:\\STUDY\\SOF3011\\PS22788_BUIXUANVIET_ASSIGNTMENT_GD2\\PS22788_XuanViet\\testTamGiac.xlsx"));
+			XSSFWorkbook workbook = new XSSFWorkbook(file);
+			XSSFSheet sheet = workbook.getSheetAt(0);
+			Row roww = sheet.getRow(l);
+
+			LocalDate currentDate = LocalDate.now();
+
+			// In ngày hiện tại
+
+			roww.getCell(5).setCellValue(actual);
+			roww.getCell(6).setCellValue(currentDate.toString());
+			roww.getCell(7).setCellValue(status);
+			FileOutputStream os = new FileOutputStream(
+					"C:\\STUDY\\SOF3011\\PS22788_BUIXUANVIET_ASSIGNTMENT_GD2\\PS22788_XuanViet\\testTamGiac.xlsx");
+			workbook.write(os);
+			file.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+}
+
+//            dao.insert(Id, Name, date, phone, address, gender, image, role, Email);
+//
+
+//

@@ -1,0 +1,57 @@
+package Entity;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Entity
+@Table(name = "Book")
+public class Books {
+	@Id
+	String masach;
+	String tensach;
+	float gia;
+	int namxb;
+	String loai;
+
+	public String getMasach() {
+		return masach;
+	}
+
+	public void setMasach(String masach) {
+		this.masach = masach;
+	}
+
+	public String getTensach() {
+		return tensach;
+	}
+
+	public void setTensach(String tensach) {
+		this.tensach = tensach;
+	}
+
+	public float getGia() {
+		return gia;
+	}
+
+	public void setGia(float gia) {
+		this.gia = gia;
+	}
+
+	public int getNamxb() {
+		return namxb;
+	}
+
+	public void setNamxb(int namxb) {
+		this.namxb = namxb;
+	}
+
+	public String getLoai() {
+		return loai;
+	}
+
+	public void setLoai(String loai) {
+		this.loai = loai;
+	}
+
+}

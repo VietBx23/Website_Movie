@@ -1,0 +1,15 @@
+package entity;
+
+import java.io.Serializable;
+import java.sql.Date;
+
+import javax.persistence.Id;
+
+public class reportShareVideo {
+	@Id
+	Serializable group;
+	String senderName;
+	String senderEmail; 
+	String receiveEmail;
+	Date sendDate;
+}

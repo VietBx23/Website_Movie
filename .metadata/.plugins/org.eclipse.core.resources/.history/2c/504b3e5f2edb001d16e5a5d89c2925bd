@@ -1,0 +1,89 @@
+package DAO;
+
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
+import javax.persistence.TypedQuery;
+
+import Entity.Book;
+import utils.JpaUtils;
+
+public class ClientDAO {
+	public void create(Book book) {
+		EntityManager em = JpaUtils.getEntityManager();
+		EntityTransaction trans = em.getTransaction();
+		try {
+			trans.begin();
+//			Product.setId("Kiet");
+//			Product.setFullname("Lê Anh Kiệt");
+//			Product.setEmail("kiet@gmail.com");
+//			Product.setPassword("123456");
+//			Product.setAdmin(true);
+			em.persist(book);
+			trans.commit();
+			System.out.println("Thêm mới thành công!");
+		} catch (Exception e) {
+			e.printStackTrace();
+			trans.rollback();
+			System.out.println("Error:" + e.toString());
+			throw e;
+		} finally {
+			em.close();
+		}
+	}
+
+	public void update(Book book) {
+		EntityManager em = JpaUtils.getEntityManager();
+		EntityTransaction trans = em.getTransaction();
+		try {
+			trans.begin();
+//			Product = em.find(Product.class, "Kiet");
+//			Product.setPassword("kiet123");
+
+			em.merge(book);
+			trans.commit();
+			System.out.println("Cập nhật thành công!");
+		} catch (Exception e) {
+			e.printStackTrace();
+			trans.rollback();
+			throw e;
+		} finally {
+			em.close();
+		}
+	}
+
+	public void delete(String id) throws Exception {
+		EntityManager em = JpaUtils.getEntityManager();
+		EntityTransaction trans = em.getTransaction();
+		try {
+			trans.begin();
+			Book pro = em.find(Book.class, id);
+			if (pro != null) {
+				em.remove(pro);
+			} else {
+				throw new Exception("This Product does not exist");
+			}
+			trans.commit();
+		} catch (Exception e) {
+			e.printStackTrace();
+			trans.rollback();
+			throw e;
+		} finally {
+			em.close();
+		}
+	}
+
+	public List<Book> findAll() {
+		EntityManager em = JpaUtils.getEntityManager();
+		String sql = "SELECT u FROM Book u";
+		TypedQuery<Book> query = em.createQuery(sql, Book.class);
+		return query.getResultList();
+	}
+
+	public Book findByID(String id) {
+		EntityManager em = JpaUtils.getEntityManager();
+		Book Product = em.find(Book.class, id);
+		return Product;
+	}
+}

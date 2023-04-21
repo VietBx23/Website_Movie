@@ -1,0 +1,19 @@
+package Entity;
+
+@entity
+public class Books {
+	String masach;
+	String tensach;
+	float gia;
+	int namxb;
+	String loai;
+
+	masach varchar(4) not null,
+
+	tensach nvarchar(50) not null, 
+			gia float not null,
+			namxb int not null,
+
+	loai nvarchar(50) not null
+		
+}

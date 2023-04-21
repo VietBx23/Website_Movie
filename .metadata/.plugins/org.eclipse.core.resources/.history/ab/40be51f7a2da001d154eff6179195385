@@ -1,0 +1,47 @@
+package Entity;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Entity
+@Table(name="Products")
+public class Product {
+	@Id
+	@Column(name = "Product_ID")
+	String product_Id; 
+	@Column(name="Product_Name")
+	String produtc_name; 
+	@Column(name="Model")
+	String model; 
+	@Column(name="Category")
+	String category;
+	public String getProduct_Id() {
+		return product_Id;
+	}
+	public void setProduct_Id(String product_Id) {
+		this.product_Id = product_Id;
+	}
+	public String getprodutc_name() {
+		return produtc_name;
+	}
+	public void setprodutc_name(String produtc_name) {
+		this.produtc_name = produtc_name;
+	}
+	public String getModel() {
+		return model;
+	}
+	public void setModel(String model) {
+		this.model = model;
+	}
+	public String getCategory() {
+		return category;
+	}
+	public void setCategory(String category) {
+		this.category = category;
+	} 
+	
+
+	
+}

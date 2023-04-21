@@ -1,0 +1,74 @@
+<%@ page pageEncoding="utf-8"%>
+
+<header class="fixed-top">
+	<div class="collapse bg-dark" id="navbarHeader">
+		<div class="container">
+			<div class="row">
+				<div class="col-sm-8 col-md-7 py-4">
+					<h4 class="text-white">Giới thiệu</h4>
+					<p class="text-muted">Công ty OE chuyên cung cấp dịch vụ giải
+						trí cho các doanh nghiệp. Khi một doanh nghiệp có sự kiện họ tìm
+						đến OE để đặt các tiểu phẩm hài phục vụ quan khách trong sự kiện.
+						OE mong muốn có một website giới thiệu các trích đoạn tiểu phẩm
+						(video) của mình nhằm phục vụ miễn phí cho cộng đồng, đồng thời
+						qua đó tìm kiếm khách hàng.</p>
+				</div>
+				<div class="col-sm-4 offset-md-1 py-4">
+					<h4 class="text-white">Liên hệ</h4>
+					<ul class="list-unstyled">
+						<li><a href="https://www.facebook.com/HuynhDucHoann"
+							class="text-white">Làm việc qua Facebook</a></li>
+						<li><a href="https://mail.google.com/mail/u/0/"
+							class="text-white">Gmail: hoanhuynh12344@gmail.com</a></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="navbar navbar-dark bg-dark box-shadow">
+		<div class="container d-flex justify-content-between">
+			<!-- <a href="#" class="navbar-brand d-flex align-items-center">
+                    <strong><i class="fa-brands fa-youtube pr-1"></i>HaiKich.Com</strong>
+                </a> -->
+			<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+				<a class="navbar-brand" href="#"><strong><i
+						class="fa-brands fa-youtube pr-1"></i>HaiKich.Com</strong></a>
+				<div class="collapse navbar-collapse" id="navbarSupportedContent">
+					<ul class="navbar-nav mr-auto">
+						<c:choose>
+							<c:when test="${not empty sessionScope.currentUser }">
+								<li class="nav-item"><a class="nav-link active"
+									aria-current="page" href="/ASM/index">Home</a></li>
+								<li class="nav-item"><a class="nav-link"
+									href="http://localhost:8080/ASSIGNTMENT_GD2/VideoServlet">Video</a>
+								</li>
+								<li class="nav-item"><a class="nav-link"
+									href="http://localhost:8080/ASSIGNTMENT_GD2/UserServlet">User</a>
+								</li>
+								<li class="nav-item"><a class="nav-link"
+									href="http://localhost:8080/ASSIGNTMENT_GD2/ReportServlet">Report</a>
+								</li>
+							</c:when>
+							<c:otherwise>
+								<li class="nav-item"><a class="nav-link" href="login"><strong>Login</strong></a>
+								</li>
+								<li class="nav-item"><a class="nav-link" href="register"><strong>Register</strong></a>
+								</li>
+								<li class="nav-item"><a class="nav-link" href="forgotPass"><strong>Forgot
+											Password</strong></a></li>
+							</c:otherwise>
+						</c:choose>
+					</ul>
+				</div>
+			</nav>
+
+			<button class="navbar-toggler" type="button" data-toggle="collapse"
+				data-target="#navbarHeader" aria-controls="navbarHeader"
+				aria-expanded="false" aria-label="Toggle navigation">
+				<span class="navbar-toggler-icon"></span>
+			</button>
+		</div>
+
+	</div>
+
+</header>

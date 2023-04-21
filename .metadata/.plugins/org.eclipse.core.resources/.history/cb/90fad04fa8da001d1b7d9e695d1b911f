@@ -1,0 +1,176 @@
+package DAO;
+
+import java.awt.Window.Type;
+import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
+import javax.persistence.TypedQuery;
+
+import Entity.Product;
+import Util.Jpa;
+
+
+
+public class ProductDAO {
+
+	public static void main(String[] args) {
+
+	}
+
+	public void create(Product product) {
+		EntityManager em = Jpa.getEntityManager();
+		EntityTransaction trans = em.getTransaction();
+		try {
+			trans.begin();
+//			Product.setId("Kiet");
+//			Product.setFullname("Lê Anh Kiệt");
+//			Product.setEmail("kiet@gmail.com");
+//			Product.setPassword("123456");
+//			Product.setAdmin(true);
+			em.persist(product);
+			trans.commit();
+			System.out.println("Thêm mới thành công!");
+		} catch (Exception e) {
+			e.printStackTrace();
+			trans.rollback();
+			System.out.println("Error:" + e.toString());
+			throw e;
+		} finally {
+			em.close();
+		}
+	}
+
+	public void update(Product product) {
+		EntityManager em = Jpa.getEntityManager();
+		EntityTransaction trans = em.getTransaction();
+		try {
+			trans.begin();
+//			Product = em.find(Product.class, "Kiet");
+//			Product.setPassword("kiet123");
+
+			em.merge(product);
+			trans.commit();
+			System.out.println("Cập nhật thành công!");
+		} catch (Exception e) {
+			e.printStackTrace();
+			trans.rollback();
+			throw e;
+		} finally {
+			em.close();
+		}
+	}
+
+	public void deleteAll() {
+		EntityManager em = Jpa.getEntityManager();
+		EntityTransaction trans = em.getTransaction();
+		String jqpl = "Delete from demo";
+		try {
+			trans.begin();
+			em.createQuery(jqpl).executeUpdate();
+			trans.commit();
+		} catch (Exception e) {
+			e.printStackTrace();
+			trans.rollback();
+		}
+
+	}
+
+	public void delete(String id) throws Exception {
+		EntityManager em = Jpa.getEntityManager();
+		EntityTransaction trans = em.getTransaction();
+		try {
+			trans.begin();
+			Product pro = em.find(Product.class,id);
+			if (pro != null) {
+				em.remove(pro);
+			} else {
+				throw new Exception("This Product does not exist");
+			}
+			trans.commit();
+		} catch (Exception e) {
+			e.printStackTrace();
+			trans.rollback();
+			throw e;
+		} finally {
+			em.close();
+		}
+	}
+
+	public List<Product> findAll() {
+		EntityManager em = Jpa.getEntityManager();
+		String sql = "SELECT u FROM Product u";
+		TypedQuery<Product> query = em.createQuery(sql, Product.class);
+		return query.getResultList();
+	}
+
+	public List<Product> favorite() {
+
+		EntityManager em = Jpa.getEntityManager();
+		String jpql = "select o from Product o where o.favorites IS EMPTY";
+
+		TypedQuery<Product> query = em.createQuery(jpql, Product.class);
+		return query.getResultList();
+	}
+
+	public List<Product> findByRole(boolean role) {
+		EntityManager em = Jpa.getEntityManager();
+		String jqpl = "Select o from Product o where o.admin = :role";
+		TypedQuery<Product> query = em.createQuery(jqpl, Product.class);
+		query.setParameter("role", role);
+		return query.getResultList();
+	}
+
+	public List<Product> findByKeyWord(String keyword) {
+		EntityManager em = Jpa.getEntityManager();
+		String jpql = "SELECT DISTINCT o.Product FROM Favorite o " + " WHERE o.Product.title LIKE :keyword";
+		TypedQuery<Product> query = em.createQuery(jpql, Product.class);
+		query.setParameter("keyword", "%" + keyword + "%");
+		List<Product> list = query.getResultList();
+		return list;
+	}
+
+	public Product findOne(String id, String password) {
+		EntityManager em = Jpa.getEntityManager();
+		String jqpl = "Select o from Product o where o.id = :id and o.password =:password";
+		TypedQuery<Product> query = em.createQuery(jqpl, Product.class);
+		query.setParameter("id", id);
+		query.setParameter("password", password);
+		return query.getSingleResult();
+	}
+
+//	public Product findByID(String id){
+//		EntityManager em = JpaUtils.getEntityManager();
+//		String jqpl = "Select o from Product o where o.id = :id";
+//		TypedQuery<Product> query = em.createQuery(jqpl,Product.class);
+//		query.setParameter("id", id);		
+//		return query.getSingleResult();
+//	}
+	public Product findByID(String id) {
+		EntityManager em = Jpa.getEntityManager();
+		Product Product = em.find(Product.class, id);
+		return Product;
+	}
+
+	public List<Product> findProductLikeProduct(String ProductId) {
+		EntityManager em = Jpa.getEntityManager();
+		String jqpl = "Select o from Favorites o where o.Product.id = :id";
+		TypedQuery<Product> query = em.createQuery(jqpl, Product.class);
+		query.setParameter("vid", ProductId);
+		List<Product> list = query.getResultList();
+		return list;
+
+	}
+
+	public List<Product> findPage(int page, int size) {
+		EntityManager em = Jpa.getEntityManager();
+		String jqpl = "SELECT o FROM Product o";
+		TypedQuery<Product> query = em.createQuery(jqpl, Product.class);
+		query.setFirstResult(page * size);
+		query.setMaxResults(size);
+		return query.getResultList();
+	}
+
+}

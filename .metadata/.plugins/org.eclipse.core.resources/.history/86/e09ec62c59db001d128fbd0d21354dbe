@@ -1,0 +1,189 @@
+package Servlet;
+
+import java.io.IOException;
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import javax.persistence.TypedQuery;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.beanutils.BeanUtils;
+
+import DAO.ClientDAO;
+import Entity.Client;
+
+@WebServlet({ "/ClientsServlet", "/ClientsServlet/Create", "/ClientsServlet/Update", "/ClientsServlet/Delete",
+		"/ClientsServlet/Edit", "/ClientsServlet/Reset", "/ClientsServlet/Search", "/ClientsServlet/SearchName" })
+public class ClientServlet extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+
+	@Override
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		// TODO Auto-generated method stub
+		String uri = req.getRequestURI();
+		Client Client = null;
+		if (uri.contains("Create")) {
+			create(req, resp);
+			// Clients = new Clients();
+			req.setAttribute("Clients", Client);
+		}
+		if (uri.contains("Delete")) {
+			remove(req, resp);
+			Client = new Client();
+			req.setAttribute("Clients", Client);
+		}
+		if (uri.contains("Update")) {
+			update(req, resp);
+			req.setAttribute("Clients", Client);
+		}
+		if (uri.contains("Reset")) {
+			Client = new Client();
+			req.setAttribute("Clients", Client);
+			req.setAttribute("disable", "");
+		}
+		if (uri.contains("Edit")) {
+			edit(req, resp);
+		}
+		if (uri.contains("Search")) {
+			find(req, resp);
+			req.setAttribute("Clients", Client);
+		}
+		if (uri.contains("SearchName")) {
+			search(req, resp);
+			req.setAttribute("Clients", Client);
+		}
+		findAll(req, resp);
+		req.getRequestDispatcher("/views/managerClients.jsp").forward(req, resp);
+
+	}
+
+	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		req.setCharacterEncoding("utf-8");
+		resp.setCharacterEncoding("utf-8");
+		String uri = req.getRequestURI();
+		if (uri.contains("Create")) {
+			create(req, resp);
+		}
+		if (uri.contains("Update")) {
+			update(req, resp);
+		}
+		if (uri.contains("Delete")) {
+			remove(req, resp);
+			req.setAttribute("Clients", new Client());
+		}
+		if (uri.contains("Reset")) {
+			req.setAttribute("disable", "");
+			req.setAttribute("Clients", new Client());
+		}
+		if (uri.contains("Search")) {
+			find(req, resp);
+			req.setAttribute("Clients", new Client());
+		}
+		if (uri.contains("SearchName")) {
+			search(req, resp);
+			req.setAttribute("Clients", new Client());
+		}
+		findAll(req, resp);
+		req.getRequestDispatcher("/views/managerClients.jsp").forward(req, resp);
+//		req.getRequestDispatcher("/views/Clients.jsp").forward(req, resp);
+	}
+
+	public void findAll(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		try {
+			ClientDAO dao = new ClientDAO();
+			List<Client> list = dao.findAll();
+			req.setAttribute("Clients", list);
+			System.out.println(list);
+		} catch (Exception e) {
+			e.printStackTrace();
+			req.setAttribute("error", "Error" + e.getMessage());
+		}
+	}
+
+	public void edit(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		try {
+			String ClientsID = req.getParameter("id");
+			ClientDAO dao = new ClientDAO();
+			Client Client = dao.findByID(ClientsID);
+			req.setAttribute("disable", "disable");
+			req.setAttribute("Client", Client);
+			System.out.println(Client);
+		} catch (Exception e) {
+			e.printStackTrace();
+			req.setAttribute("error", "Error" + e.getMessage());
+		}
+	}
+
+	public void update(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		try {
+			Client Client = new Client();
+			BeanUtils.populate(Client, req.getParameterMap());
+			ClientDAO dao = new ClientDAO();
+			dao.update(Client);
+			req.setAttribute("disable", "");
+			req.setAttribute("message", "Clients update successfully");
+		} catch (Exception e) {
+			e.printStackTrace();
+			req.setAttribute("disable", "disable");
+			req.setAttribute("error", "Error" + e.getMessage());
+		}
+	}
+
+	public void create(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		try {
+			Client Client = new Client();
+			BeanUtils.populate(Client, req.getParameterMap());
+			ClientDAO dao = new ClientDAO();
+			dao.create(Client);
+			req.setAttribute("message", "Clients create successfully");
+			findAll(req, resp);
+		} catch (Exception e) {
+			e.printStackTrace();
+			req.setAttribute("error", "Error" + e.getMessage());
+		}
+	}
+
+	public void remove(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		try {
+			String id = req.getParameter("username");
+			ClientDAO dao = new ClientDAO();
+			dao.delete(id);
+			req.setAttribute("message", "Clients delete successfully");
+		} catch (Exception e) {
+			e.printStackTrace();
+			req.setAttribute("error", "Error" + e.getMessage());
+		}
+	}
+
+	EntityManagerFactory emf = Persistence.createEntityManagerFactory("ManagerClient");
+	EntityManager em = emf.createEntityManager();
+
+	public void find(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		String searchName = req.getParameter("filerSach");
+		System.out.println(searchName);
+		String jpql = "SELECT o FROM Client o where o.hoten = :id";
+		TypedQuery<Client> query = (TypedQuery<Client>) em.createQuery(jpql);
+		query.setParameter("id", searchName);
+		List<Client> list = query.getResultList();
+		req.setAttribute("Clients", list);
+		req.getRequestDispatcher("/views/managerClients.jsp").forward(req, resp);
+	}
+
+	public void search(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		String searchName = req.getParameter("searchName");
+		System.out.println(searchName);
+		String jpql = "SELECT o FROM Client o where o.hoten = :id";
+		TypedQuery<Client> query = (TypedQuery<Client>) em.createQuery(jpql);
+		query.setParameter("id", "%" + searchName + "%");
+		List<Client> list = query.getResultList();
+		System.out.println(list);
+		req.setAttribute("Clients", list);
+		req.getRequestDispatcher("/views/managerClients.jsp").forward(req, resp);
+	}
+}

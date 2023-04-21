@@ -1,0 +1,18 @@
+package Entity;
+
+import javax.persistence.Entity;
+import javax.persistence.Table;
+
+@Entity
+@Table(name="Products")
+public class Product {
+
+	create table Products
+	(
+		Product_ID nvarchar(50) primary key not null, 
+		Product_Name nvarchar(50) not null, 
+		Model nvarchar(50) not null, 
+		Category nvarchar (50) not null 
+	)
+	
+}

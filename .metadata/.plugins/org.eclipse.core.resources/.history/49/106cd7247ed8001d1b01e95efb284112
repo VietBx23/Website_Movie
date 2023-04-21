@@ -1,0 +1,217 @@
+<%@ page pageEncoding="utf-8"%>
+<%@include file="/common/taglib.jsp"%>
+<!doctype html>
+<html lang="en">
+
+<head>
+<meta charset="utf-8">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="description" content="">
+<meta name="author" content="">
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css"
+	integrity="sha512-SzlrxWUlpfuzQ+pcUCosxcglQRNAq/DZjVsC0lE40xsADsfeQoEypE+enwcOiGjk/bSuGGKHEyjSoQ1zVisanQ=="
+	crossorigin="anonymous" referrerpolicy="no-referrer" />
+<title>Hài kịch FPoly</title>
+
+<!-- Bootstrap core CSS -->
+<link rel="stylesheet"
+	href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+	integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+	crossorigin="anonymous">
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+	integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+	crossorigin="anonymous"></script>
+<script
+	src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"
+	integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+	crossorigin="anonymous"></script>
+<script
+	src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
+	integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+	crossorigin="anonymous"></script>
+
+<!-- Custom styles for this template -->
+<!-- <link href="album.css" rel="stylesheet"> -->
+<style>
+.text1:hover {
+	text-decoration: none;
+}
+</style>
+</head>
+
+<body>
+
+	<header class="">
+		<div class="collapse bg-dark pt-2" id="navbarHeader">
+			<div class="container">
+				<div class="row">
+					<div class="col-sm-8 col-md-7 py-4">
+						<h4 class="text-white">Giới thiệu</h4>
+						<p class="text-muted">Công ty OE chuyên cung cấp dịch vụ giải
+							trí cho các doanh nghiệp. Khi một doanh nghiệp có sự kiện họ tìm
+							đến OE để đặt các tiểu phẩm hài phục vụ quan khách trong sự kiện.
+							OE mong muốn có một website giới thiệu các trích đoạn tiểu phẩm
+							(video) của mình nhằm phục vụ miễn phí cho cộng đồng, đồng thời
+							qua đó tìm kiếm khách hàng.</p>
+					</div>
+					<div class="col-sm-4 offset-md-1 py-4">
+						<h4 class="text-white">Liên hệ</h4>
+						<ul class="list-unstyled">
+							<li><a href="https://www.facebook.com/HuynhDucHoann"
+								class="text-white">Làm việc qua Facebook</a></li>
+							<li><a href="https://mail.google.com/mail/u/0/"
+								class="text-white">Gmail: hoanhuynh12344@gmail.com</a></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="navbar navbar-dark bg-dark box-shadow">
+			<div class="container d-flex justify-content-between">
+				<!-- <a href="#" class="navbar-brand d-flex align-items-center">
+                    <strong><i class="fa-brands fa-youtube pr-1"></i>HaiKich.Com</strong>
+                </a> -->
+				<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+					<a class="navbar-brand" href='<c:url value="/index"></c:url>'><strong><i
+							class="fa-brands fa-youtube pr-1"></i>HaiKich.Com</strong></a>
+					<div class="collapse navbar-collapse" id="navbarSupportedContent">
+						<ul class="navbar-nav mr-auto">
+							<c:choose>
+								<c:when test="${not empty sessionScope.currentUser }">
+									<li class="nav-item"><a class="nav-link" href=""><strong>Welcom,
+												${sessionScope.currentUser.username}</strong></a></li>
+									<li class="nav-item"><a class="nav-link" href="favorites"><strong>My
+												favorites</strong></a></li>
+									<li class="nav-item"><a class="nav-link" href="history"><strong>History</strong></a>
+									</li>
+									<li class="nav-item"><a class="nav-link" href="logout"><strong>Logout</strong></a>
+									</li>
+								</c:when>
+								<c:otherwise>
+									<li class="nav-item"><a class="nav-link" href="login"><strong>Login</strong></a>
+									</li>
+									<li class="nav-item"><a class="nav-link" href="register"><strong>Register</strong></a>
+									</li>
+									<li class="nav-item"><a class="nav-link" href="forgotPass"><strong>Forgot
+												Password</strong></a></li>
+								</c:otherwise>
+							</c:choose>
+						</ul>
+					</div>
+				</nav>
+
+				<button class="navbar-toggler" type="button" data-toggle="collapse"
+					data-target="#navbarHeader" aria-controls="navbarHeader"
+					aria-expanded="false" aria-label="Toggle navigation">
+					<span class="navbar-toggler-icon"></span>
+				</button>
+			</div>
+
+		</div>
+
+	</header>
+
+	<div role="main" class="pt-2">
+		<div class="row pl-4">
+			<div class="col-lg-8">
+				<div class="embed-responsive embed-responsive-16by9">
+					<iframe
+						src="https://www.youtube.com/embed/${video.href }?autoplay=1&mute=1"
+						width="560" height="315" frameborder="0" allowfullscreen></iframe>
+				</div>
+				<div class="title pt-1 mt-1">
+					<h1 style="font-size: 20px">${video.title }</h1>
+				</div>
+				<div class="decription bg-secondary rounded text-white">
+					<p class="pl-2 mt-1">${video.description }</p>
+				</div>
+				<div class="button float-right">
+					<c:choose>
+						<c:when test="${not empty sessionScope.currentUser }">
+							<button id="LikeOrUnlikeBtn" class="btn btn-outline-secondary">
+								<i class="fa-sharp fa-solid fa-thumbs-up"></i>
+								<c:choose>
+									<c:when test="${flagLike == true }">
+									Unlike
+								</c:when>
+									<c:otherwise>
+									Like
+								</c:otherwise>
+								</c:choose>
+							</button>
+							<button class="btn btn-outline-secondary">
+								<i class="fa-solid fa-share"></i>Share
+							</button>
+						</c:when>
+						<c:otherwise>
+							<button type="button" disabled class="btn btn-outline-secondary">
+								<i class="fa-sharp fa-solid fa-thumbs-up"></i>Like
+							</button>
+							<button type="button" disabled class="btn btn-outline-secondary">
+								<i class="fa-solid fa-share"></i>Share
+							</button>
+						</c:otherwise>
+					</c:choose>
+
+
+					<input type="hidden" id="videoIdHdn" value="${video.href }">
+				</div>
+
+			</div>
+			<div class="col-lg-4">
+				<div class="list-group">
+					<a href="#" class="list-group-item list-group-item-action">
+						<div class="media">
+							<img class="align-self-start img-fluid col-6 rounded"
+								src="img/VID01.png" alt="Generic placeholder image">
+							<h6 class="mt-0 " style="font-size: 14px">HÀI KỊCH 1</h6>
+						</div>
+					</a> <a href="#" class="list-group-item list-group-item-action">
+						<div class="media">
+							<img class="align-self-start img-fluid col-6 rounded"
+								src="img/VID01.png" alt="Generic placeholder image">
+							<h6 class="mt-0 " style="font-size: 14px">HÀI KỊCH 2</h6>
+						</div>
+					</a> <a href="#" class="list-group-item list-group-item-action">
+						<div class="media">
+							<img class="align-self-start img-fluid col-6 rounded"
+								src="img/VID01.png" alt="Generic placeholder image">
+							<h6 class="mt-0 " style="font-size: 14px">HÀI KỊCH 3</h6>
+						</div>
+					</a> <a href="#" class="list-group-item list-group-item-action">
+						<div class="media">
+							<img class="align-self-start img-fluid col-6 rounded"
+								src="img/VID01.png" alt="Generic placeholder image">
+							<h6 class="mt-0 " style="font-size: 14px">HÀI KỊCH 4</h6>
+						</div>
+					</a> <a href="#" class="list-group-item list-group-item-action">
+						<div class="media">
+							<img class="align-self-start img col-6 rounded" width="390px"
+								src="img/VID01.png" alt="Generic placeholder image">
+							<h6 class="mt-0" style="font-size: 14px">HÀI KỊCH 5</h6>
+						</div>
+					</a>
+				</div>
+			</div>
+
+		</div>
+	</div>
+	<%@include file="/common/footer.jsp"%>
+	<script>
+		$('#LikeOrUnlikeBtn').click(function){
+			var videoId = $('#videoIdHdn').val();
+			$.ajax({
+				url: 'video?action=like&id=?' + videoId;
+			}).then(function (data){
+				
+			}).fail(function (error){
+				alert('Oops!! pleas try again ');
+			});
+		}
+	
+	</script>
+</body>
+
+</html>

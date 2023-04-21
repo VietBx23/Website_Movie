@@ -1,0 +1,15 @@
+package Entity;
+
+import javax.persistence.Entity;
+import javax.persistence.Table;
+
+@Entity
+@Table(name="Book")
+public class Books {
+	String masach;
+	String tensach;
+	float gia;
+	int namxb;
+	
+		
+}

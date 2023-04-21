@@ -1,0 +1,158 @@
+package Controller;
+
+import java.io.IOException;
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import javax.persistence.TypedQuery;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.beanutils.BeanUtils;
+
+import DAO.ProductDAO;
+import Entity.Product;
+
+@WebServlet({ "/ProductServlet", "/ProductServlet/Create", "/ProductServlet/Update", "/ProductServlet/Delete",
+		"/ProductServlet/Edit", "/ProductServlet/Reset" })
+public class HomeServler extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+
+	@Override
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		// TODO Auto-generated method stub
+		String uri = req.getRequestURI();
+		Product Product = null;
+		if (uri.contains("Create")) {
+			create(req, resp);
+			// Product = new Product();
+			req.setAttribute("Product", Product);
+		}
+		if (uri.contains("Delete")) {
+			remove(req, resp);
+			Product = new Product();
+			req.setAttribute("Product", Product);
+		}
+		if (uri.contains("Update")) {
+			update(req, resp);
+			req.setAttribute("Product", Product);
+		}
+		if (uri.contains("Reset")) {
+			Product = new Product();
+			req.setAttribute("Product", Product);
+			req.setAttribute("disable", "");
+		}
+		if (uri.contains("Edit")) {
+			edit(req, resp);
+		}
+		findAll(req, resp);
+		req.getRequestDispatcher("/views/index.jsp").forward(req, resp);
+
+	}
+
+	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		req.setCharacterEncoding("utf-8");
+		resp.setCharacterEncoding("utf-8");
+		String uri = req.getRequestURI();
+		if (uri.contains("Create")) {
+			create(req, resp);
+		}
+		if (uri.contains("Update")) {
+			update(req, resp);
+		}
+		if (uri.contains("Delete")) {
+			remove(req, resp);
+			req.setAttribute("Product", new Product());
+		}
+		if (uri.contains("Reset")) {
+			req.setAttribute("disable", "");
+			req.setAttribute("Product", new Product());
+		}
+		findAll(req, resp);
+		req.getRequestDispatcher("/page/managerProduct.jsp").forward(req, resp);
+//		req.getRequestDispatcher("/views/Product.jsp").forward(req, resp);
+	}
+
+	public void findAll(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		try {
+			ProductDAO dao = new ProductDAO();
+			List<Product> list = dao.findAll();
+			req.setAttribute("Products", list);
+			System.out.println(list);
+		} catch (Exception e) {
+			e.printStackTrace();
+			req.setAttribute("error", "Error" + e.getMessage());
+		}
+	}
+
+	public void edit(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		try {
+			String ProductID = req.getParameter("Product_Id");
+			ProductDAO dao = new ProductDAO();
+			Product Product = dao.findByID(ProductID);
+			req.setAttribute("disable", "disable");
+			req.setAttribute("Products", Product);
+		} catch (Exception e) {
+			e.printStackTrace();
+			req.setAttribute("error", "Error" + e.getMessage());
+		}
+	}
+
+	public void update(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		try {
+			Product Product = new Product();
+			BeanUtils.populate(Product, req.getParameterMap());
+			ProductDAO dao = new ProductDAO();
+			dao.update(Product);
+			req.setAttribute("disable", "");
+			req.setAttribute("message", "Product update successfully");
+		} catch (Exception e) {
+			e.printStackTrace();
+			req.setAttribute("disable", "disable");
+			req.setAttribute("error", "Error" + e.getMessage());
+		}
+	}
+
+	public void create(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		try {
+			Product Product = new Product();
+			BeanUtils.populate(Product, req.getParameterMap());
+			ProductDAO dao = new ProductDAO();
+			dao.create(Product);
+			req.setAttribute("message", "Product create successfully");
+			findAll(req, resp);
+		} catch (Exception e) {
+			e.printStackTrace();
+			req.setAttribute("error", "Error" + e.getMessage());
+		}
+	}
+
+	public void remove(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		try {
+			String id = req.getParameter("product_Id");
+			ProductDAO dao = new ProductDAO();
+			dao.delete(id);
+			req.setAttribute("message", "Product delete successfully");
+		} catch (Exception e) {
+			e.printStackTrace();
+			req.setAttribute("error", "Error" + e.getMessage());
+		}
+	}
+
+	EntityManagerFactory emf = Persistence.createEntityManagerFactory("PS22788_PRODUCT");
+	EntityManager em = emf.createEntityManager();
+
+	public void find(HttpServletRequest req, HttpServletResponse resp) {
+		String videoId = req.getParameter("ProductId");
+		String jpql = "SELECT o FROM Product o where o.product_id = :vid";
+		TypedQuery<Product> query = (TypedQuery<Product>) em.createQuery(jpql);
+		query.setParameter("vid", videoId);
+		List<Product> list = query.getResultList();
+		req.setAttribute("Products", list);
+	}
+}

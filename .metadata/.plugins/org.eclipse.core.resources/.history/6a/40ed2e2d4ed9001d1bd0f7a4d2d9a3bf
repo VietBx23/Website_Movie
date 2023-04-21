@@ -1,0 +1,76 @@
+package com.client;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import com.Utils.SessionU;
+
+import DAO.VideoDAO;
+import entity.User;
+import entity.Video;
+
+@WebServlet({ "/index", "/detail" })
+public class indexHome extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+
+	private VideoDAO daoVideo = new VideoDAO();
+
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		HttpSession session = req.getSession();
+		User currentUser = (User) session.getAttribute(SessionU.CURENT_USER);
+		String uri = req.getRequestURI();
+		if (uri.contains("index")) {
+			VideoDAO dao = new VideoDAO();
+			req.setAttribute("video", dao.findAll());
+			req.getRequestDispatcher("/views/index.jsp").forward(req, resp);
+
+		} else if (uri.contains("detail")) {
+			List<Video> video = daoVideo.findAll();
+			VideoDAO dao = new VideoDAO();
+
+			int idProduct = Integer.parseInt(req.getParameter("idProduct"));
+			req.setAttribute("video", video.get(idProduct));
+			req.setAttribute("videos", daoVideo.findAll());
+			req.getRequestDispatcher("/views/detailVideo.jsp").forward(req, resp);
+			System.out.print(req.getPathInfo());
+		}
+
+	}
+
+	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+//			String uri = req.getRequestURI();
+//			HttpSession session = req.getSession();
+//			User currentUser = (User) session.getAttribute(SessionU.CURENT_USER);
+//			if(uri.contains("admin")) {
+//				if(currentUser!=null && currentUser.getAdmin()==Boolean.TRUE) {
+//					req.setAttribute("videos", daoVideo.findAll());
+//	    			req.getRequestDispatcher("/views/admin/adindex.jsp").forward(req, resp);
+//	    		}else {
+//	    			resp.sendRedirect("index");
+//	    		}
+//			}
+	}
+
+	public void findAll(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		try {
+			VideoDAO dao = new VideoDAO();
+			List<Video> video = dao.findAll();
+			req.setAttribute("video", video);
+		} catch (Exception e) {
+			e.printStackTrace();
+			req.setAttribute("error", "Error" + e.getMessage());
+		}
+	}
+
+}
